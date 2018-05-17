@@ -21,20 +21,24 @@ class MsgPackVisitor {
   void acceptObject(const JsonObject& /*object*/) {}
 
   void acceptString(const char* /*value*/) {
-    _output->push_back(char(0xC0));
+    write(0xC0);
   }
 
   void acceptRawJson(const char* /*value*/) {}
 
   void acceptNegativeInteger(JsonUInt value) {
-    _output->push_back(char(~value + 1));
+    write(uint8_t(~value + 1));
   }
 
   void acceptPositiveInteger(JsonUInt value) {
-    if (value < 128)
-      _output->push_back(char(value));
-    else {
+    if (value < 128) {
+      write(uint8_t(value));
+    } else if (value < 256) {
       write(0xCC);
+      write(uint8_t(value));
+    } else {
+      write(0xCD);
+      write(uint8_t(value >> 8));
       write(uint8_t(value));
     }
   }
@@ -44,7 +48,7 @@ class MsgPackVisitor {
   }
 
   void acceptUndefined() {
-    _output->push_back(char(0xC0));
+    write(0xC0);
   }
 
  private:
