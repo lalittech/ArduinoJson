@@ -15,8 +15,18 @@ void check(JsonVariant variant, const char* expected_data,
 }
 
 TEST_CASE("serialize MsgPack value") {
+  SECTION("nil") {
+    const char* nil = 0;  // ArduinoJson uses a string for null
+    check(nil, "\xC0", 1);
+  }
+
   SECTION("positive fixint") {
     check(0, "\x00", 1);
     check(127, "\x7F", 1);
+  }
+
+  SECTION("negative fixint") {
+    check(-32, "\xE0", 1);
+    check(-1, "\xFF", 1);
   }
 }
