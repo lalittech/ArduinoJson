@@ -34,7 +34,9 @@ class MsgPackVisitor {
     _output->push_back(static_cast<char>(value));
   }
 
-  void acceptBoolean(bool /*value*/) {}
+  void acceptBoolean(bool value) {
+    _output->push_back(static_cast<char>(value ? 0xC3 : 0xC2));
+  }
 
   void acceptUndefined() {}
 
