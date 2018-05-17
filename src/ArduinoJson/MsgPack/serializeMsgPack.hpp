@@ -40,13 +40,26 @@ class MsgPackVisitor {
       write(0xCD);
       write(uint8_t(value >> 8));
       write(uint8_t(value));
-    } else {
+    } else if (value <= 0xFFFFFFFF) {
       write(0xCE);
       write(uint8_t(value >> 24));
       write(uint8_t(value >> 16));
       write(uint8_t(value >> 8));
       write(uint8_t(value));
     }
+#if ARDUINOJSON_USE_LONG_LONG || ARDUINOJSON_USE_INT64
+    else {
+      write(0xCF);
+      write(uint8_t(value >> 56));
+      write(uint8_t(value >> 48));
+      write(uint8_t(value >> 40));
+      write(uint8_t(value >> 32));
+      write(uint8_t(value >> 24));
+      write(uint8_t(value >> 16));
+      write(uint8_t(value >> 8));
+      write(uint8_t(value));
+    }
+#endif
   }
 
   void acceptBoolean(bool value) {
