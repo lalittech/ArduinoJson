@@ -31,13 +31,19 @@ class MsgPackVisitor {
   }
 
   void acceptPositiveInteger(JsonUInt value) {
-    if (value < 128) {
+    if (value <= 0x7F) {
       write(uint8_t(value));
-    } else if (value < 256) {
+    } else if (value <= 0xFF) {
       write(0xCC);
       write(uint8_t(value));
-    } else {
+    } else if (value <= 0xFFFF) {
       write(0xCD);
+      write(uint8_t(value >> 8));
+      write(uint8_t(value));
+    } else {
+      write(0xCE);
+      write(uint8_t(value >> 24));
+      write(uint8_t(value >> 16));
       write(uint8_t(value >> 8));
       write(uint8_t(value));
     }

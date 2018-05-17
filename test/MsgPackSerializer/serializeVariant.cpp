@@ -49,4 +49,9 @@ TEST_CASE("serialize MsgPack value") {
     check(256, "\xCD\x01\x00");
     check(65535, "\xCD\xFF\xFF");
   }
+
+  SECTION("uint 32") {
+    check(0x00010000U, "\xCE\x00\x01\x00\x00");
+    check(0xFFFFFFFFU, "\xCE\xFF\xFF\xFF\xFF");
+  }
 }
