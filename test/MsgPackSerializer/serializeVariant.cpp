@@ -5,17 +5,17 @@
 #include <ArduinoJson.h>
 #include <catch.hpp>
 
-size_t serializeMsgPack(const JsonVariant&, std::string& output) {
-  output.push_back(0);
-  return 1;
+void check(JsonVariant variant, const char* expected, size_t expected_len) {
+  std::string output;
+  size_t len = serializeMsgPack(variant, output);
+  REQUIRE(len == expected_len);
+  REQUIRE(output.size() == expected_len);
+  REQUIRE(memcmp(expected, output.c_str(), len) == 0);
 }
 
 TEST_CASE("serialize MsgPack value") {
-  JsonVariant variant = 0;
-
-  std::string output;
-  size_t len = serializeMsgPack(variant, output);
-  REQUIRE(len == 1);
-  REQUIRE(output.size() == 1);
-  REQUIRE(output[0] == 0);
+  SECTION("positive fixint") {
+    check(0, "\x00", 1);
+    check(127, "\x7F", 1);
+  }
 }
