@@ -8,8 +8,9 @@
 
 namespace ArduinoJson {
 
+template <typename Destination>
 inline size_t serializeMsgPack(const JsonVariant& variant,
-                               std::string& output) {
+                               Destination& output) {
   output.push_back(variant.as<char>());
 
   return output.size();

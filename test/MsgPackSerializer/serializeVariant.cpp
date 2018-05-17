@@ -5,12 +5,13 @@
 #include <ArduinoJson.h>
 #include <catch.hpp>
 
-void check(JsonVariant variant, const char* expected, size_t expected_len) {
-  std::string output;
-  size_t len = serializeMsgPack(variant, output);
+void check(JsonVariant variant, const char* expected_data,
+           size_t expected_len) {
+  std::vector<char> expected(expected_data, expected_data + expected_len);
+  std::vector<char> actual;
+  size_t len = serializeMsgPack(variant, actual);
   REQUIRE(len == expected_len);
-  REQUIRE(output.size() == expected_len);
-  REQUIRE(memcmp(expected, output.c_str(), len) == 0);
+  REQUIRE(actual == expected);
 }
 
 TEST_CASE("serialize MsgPack value") {
