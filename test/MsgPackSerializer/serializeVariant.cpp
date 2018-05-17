@@ -16,6 +16,10 @@ void check(JsonVariant variant, const char (&expected_data)[N]) {
 }
 
 TEST_CASE("serialize MsgPack value") {
+  SECTION("undefined") {
+    check(JsonVariant(), "\xC0");  // we represent undefined as nil
+  }
+
   SECTION("nil") {
     const char* nil = 0;  // ArduinoJson uses a string for null
     check(nil, "\xC0");
