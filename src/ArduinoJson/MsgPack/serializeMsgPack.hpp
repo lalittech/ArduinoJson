@@ -31,7 +31,12 @@ class MsgPackVisitor {
   }
 
   void acceptPositiveInteger(JsonUInt value) {
-    _output->push_back(char(value));
+    if (value < 128)
+      _output->push_back(char(value));
+    else {
+      write(0xCC);
+      write(uint8_t(value));
+    }
   }
 
   void acceptBoolean(bool value) {
@@ -43,6 +48,10 @@ class MsgPackVisitor {
   }
 
  private:
+  void write(uint8_t c) {
+    _output->push_back(char(c));
+  }
+
   Destination* _output;
 };
 }  // namespace Internals

@@ -39,4 +39,9 @@ TEST_CASE("serialize MsgPack value") {
     check(-32, "\xE0");
     check(-1, "\xFF");
   }
+
+  SECTION("uint 8") {
+    check(128, "\xcc\x80");
+    check(255, "\xcc\xff");
+  }
 }
