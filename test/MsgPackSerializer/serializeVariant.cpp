@@ -85,4 +85,8 @@ TEST_CASE("serialize MsgPack value") {
     check(int64_t(0xFEDCBA9876543210), "\xD3\xFE\xDC\xBA\x98\x76\x54\x32\x10");
   }
 #endif
+
+  SECTION("float 64") {
+    check(3.1415, "\xCB\x40\x09\x21\xCA\xC0\x83\x12\x6F");
+  }
 }

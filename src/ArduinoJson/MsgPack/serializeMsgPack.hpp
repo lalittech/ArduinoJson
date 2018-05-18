@@ -15,7 +15,10 @@ class MsgPackVisitor {
  public:
   MsgPackVisitor(Destination* output) : _output(output) {}
 
-  void acceptFloat(JsonFloat /*value*/) {}
+  void acceptFloat(JsonFloat value) {
+    writeByte(0xCB);
+    writeInteger(value);
+  }
 
   void acceptArray(const JsonArray& /*array*/) {}
 
