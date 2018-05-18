@@ -5,6 +5,7 @@
 #pragma once
 
 #include "../JsonVariant.hpp"
+#include "../Polyfills/type_traits.hpp"
 #include "./endianess.hpp"
 
 namespace ArduinoJson {
@@ -15,9 +16,22 @@ class MsgPackVisitor {
  public:
   MsgPackVisitor(Destination* output) : _output(output) {}
 
-  void acceptFloat(JsonFloat value) {
-    writeByte(0xCB);
-    writeInteger(value);
+  template <typename T>
+  typename enable_if<sizeof(T) == 4>::type acceptFloat(T value32) {
+    writeByte(0xCA);
+    writeInteger(value32);
+  }
+
+  template <typename T>
+  typename enable_if<sizeof(T) == 8>::type acceptFloat(T value64) {
+    float value32 = float(value64);
+    if (value32 == value64) {
+      writeByte(0xCA);
+      writeInteger(value32);
+    } else {
+      writeByte(0xCB);
+      writeInteger(value64);
+    }
   }
 
   void acceptArray(const JsonArray& /*array*/) {}
