@@ -41,6 +41,12 @@ class MsgPackVisitor {
       writeByte(0xD2);
       writeInteger(int32_t(negated));
     }
+#if ARDUINOJSON_USE_LONG_LONG || ARDUINOJSON_USE_INT64
+    else {
+      writeByte(0xD3);
+      writeInteger(int64_t(negated));
+    }
+#endif
   }
 
   void acceptPositiveInteger(JsonUInt value) {

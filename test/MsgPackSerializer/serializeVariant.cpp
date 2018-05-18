@@ -79,4 +79,10 @@ TEST_CASE("serialize MsgPack value") {
     check(-32769, "\xD2\xFF\xFF\x7F\xFF");
     check(-2147483647 - 1, "\xD2\x80\x00\x00\x00");
   }
+
+#if ARDUINOJSON_USE_LONG_LONG || ARDUINOJSON_USE_INT64
+  SECTION("int 64") {
+    check(int64_t(0xFEDCBA9876543210), "\xD3\xFE\xDC\xBA\x98\x76\x54\x32\x10");
+  }
+#endif
 }
