@@ -5,6 +5,7 @@
 #pragma once
 
 #include "../JsonVariant.hpp"
+#include "./endianess.hpp"
 
 namespace ArduinoJson {
 namespace Internals {
@@ -21,7 +22,7 @@ class MsgPackVisitor {
   void acceptObject(const JsonObject& /*object*/) {}
 
   void acceptString(const char* /*value*/) {
-    write(0xC0);
+    writeByte(0xC0);
   }
 
   void acceptRawJson(const char* /*value*/) {}
@@ -29,51 +30,36 @@ class MsgPackVisitor {
   void acceptNegativeInteger(JsonUInt value) {
     JsonUInt negated = JsonUInt(~value + 1);
     if (value <= 0x20) {
-      write(uint8_t(negated));
+      writeInteger(int8_t(negated));
     } else if (value <= 0x80) {
-      write(0xD0);
-      write(uint8_t(negated));
+      writeByte(0xD0);
+      writeInteger(int8_t(negated));
     } else if (value <= 0x8000) {
-      write(0xD1);
-      write(uint8_t(negated >> 8));
-      write(uint8_t(negated));
+      writeByte(0xD1);
+      writeInteger(int16_t(negated));
     } else if (value <= 0x80000000) {
-      write(0xD2);
-      write(uint8_t(negated >> 24));
-      write(uint8_t(negated >> 16));
-      write(uint8_t(negated >> 8));
-      write(uint8_t(negated));
+      writeByte(0xD2);
+      writeInteger(int32_t(negated));
     }
   }
 
   void acceptPositiveInteger(JsonUInt value) {
     if (value <= 0x7F) {
-      write(uint8_t(value));
+      writeInteger(uint8_t(value));
     } else if (value <= 0xFF) {
-      write(0xCC);
-      write(uint8_t(value));
+      writeByte(0xCC);
+      writeInteger(uint8_t(value));
     } else if (value <= 0xFFFF) {
-      write(0xCD);
-      write(uint8_t(value >> 8));
-      write(uint8_t(value));
+      writeByte(0xCD);
+      writeInteger(uint16_t(value));
     } else if (value <= 0xFFFFFFFF) {
-      write(0xCE);
-      write(uint8_t(value >> 24));
-      write(uint8_t(value >> 16));
-      write(uint8_t(value >> 8));
-      write(uint8_t(value));
+      writeByte(0xCE);
+      writeInteger(uint32_t(value));
     }
 #if ARDUINOJSON_USE_LONG_LONG || ARDUINOJSON_USE_INT64
     else {
-      write(0xCF);
-      write(uint8_t(value >> 56));
-      write(uint8_t(value >> 48));
-      write(uint8_t(value >> 40));
-      write(uint8_t(value >> 32));
-      write(uint8_t(value >> 24));
-      write(uint8_t(value >> 16));
-      write(uint8_t(value >> 8));
-      write(uint8_t(value));
+      writeByte(0xCF);
+      writeInteger(uint64_t(value));
     }
 #endif
   }
@@ -83,12 +69,22 @@ class MsgPackVisitor {
   }
 
   void acceptUndefined() {
-    write(0xC0);
+    writeByte(0xC0);
   }
 
  private:
-  void write(uint8_t c) {
+  void writeByte(uint8_t c) {
     _output->push_back(char(c));
+  }
+
+  void writeBytes(const uint8_t* c, size_t n) {
+    for (; n > 0; --n, ++c) writeByte(*c);
+  }
+
+  template <typename T>
+  void writeInteger(T value) {
+    fixEndianess(value);
+    writeBytes(reinterpret_cast<uint8_t*>(&value), sizeof(value));
   }
 
   Destination* _output;
