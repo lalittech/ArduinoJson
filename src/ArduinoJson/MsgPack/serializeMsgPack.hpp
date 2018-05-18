@@ -28,13 +28,19 @@ class MsgPackVisitor {
 
   void acceptNegativeInteger(JsonUInt value) {
     JsonUInt negated = JsonUInt(~value + 1);
-    if (value <= 32) {
+    if (value <= 0x20) {
       write(uint8_t(negated));
-    } else if (value <= 128) {
+    } else if (value <= 0x80) {
       write(0xD0);
       write(uint8_t(negated));
-    } else if (value <= 32768) {
+    } else if (value <= 0x8000) {
       write(0xD1);
+      write(uint8_t(negated >> 8));
+      write(uint8_t(negated));
+    } else if (value <= 0x80000000) {
+      write(0xD2);
+      write(uint8_t(negated >> 24));
+      write(uint8_t(negated >> 16));
       write(uint8_t(negated >> 8));
       write(uint8_t(negated));
     }

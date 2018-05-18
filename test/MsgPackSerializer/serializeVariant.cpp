@@ -74,4 +74,9 @@ TEST_CASE("serialize MsgPack value") {
     check(-129, "\xD1\xFF\x7F");
     check(-32768, "\xD1\x80\x00");
   }
+
+  SECTION("int 32") {
+    check(-32769, "\xD2\xFF\xFF\x7F\xFF");
+    check(int(0x80000000), "\xD2\x80\x00\x00\x00");
+  }
 }
