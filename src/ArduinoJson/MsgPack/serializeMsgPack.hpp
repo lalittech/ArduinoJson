@@ -27,11 +27,16 @@ class MsgPackVisitor {
   void acceptRawJson(const char* /*value*/) {}
 
   void acceptNegativeInteger(JsonUInt value) {
+    JsonUInt negated = JsonUInt(~value + 1);
     if (value <= 32) {
-      write(uint8_t(~value + 1));
-    } else {
+      write(uint8_t(negated));
+    } else if (value <= 128) {
       write(0xD0);
-      write(uint8_t(~value + 1));
+      write(uint8_t(negated));
+    } else if (value <= 32768) {
+      write(0xD1);
+      write(uint8_t(negated >> 8));
+      write(uint8_t(negated));
     }
   }
 

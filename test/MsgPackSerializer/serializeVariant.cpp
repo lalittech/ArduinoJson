@@ -11,6 +11,7 @@ void check(JsonVariant variant, const char (&expected_data)[N]) {
   std::vector<char> expected(expected_data, expected_data + expected_len);
   std::vector<char> actual;
   size_t len = serializeMsgPack(variant, actual);
+  CAPTURE(variant);
   REQUIRE(len == expected_len);
   REQUIRE(actual == expected);
 }
@@ -35,19 +36,13 @@ TEST_CASE("serialize MsgPack value") {
     check(127, "\x7F");
   }
 
-  SECTION("negative fixint") {
-    check(-32, "\xE0");
-    check(-1, "\xFF");
-  }
-
   SECTION("uint 8") {
     check(128, "\xCC\x80");
     check(255, "\xCC\xFF");
   }
 
   SECTION("uint 16") {
-    check(0x0100, "\xCD\x01\x00");
-    check(0x1234, "\xCD\x12\x34");
+    check(256, "\xCD\x01\x00");
     check(0xFFFF, "\xCD\xFF\xFF");
   }
 
@@ -65,8 +60,18 @@ TEST_CASE("serialize MsgPack value") {
   }
 #endif
 
+  SECTION("negative fixint") {
+    check(-1, "\xFF");
+    check(-32, "\xE0");
+  }
+
   SECTION("int 8") {
     check(-33, "\xD0\xDF");
     check(-128, "\xD0\x80");
+  }
+
+  SECTION("int 16") {
+    check(-129, "\xD1\xFF\x7F");
+    check(-32768, "\xD1\x80\x00");
   }
 }
