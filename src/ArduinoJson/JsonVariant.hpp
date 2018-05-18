@@ -70,7 +70,7 @@ class JsonVariant : public Internals::JsonVariantBase<JsonVariant> {
       _content.asInteger = static_cast<JsonUInt>(value);
     } else {
       _type = JSON_NEGATIVE_INTEGER;
-      _content.asInteger = static_cast<JsonUInt>(-value);
+      _content.asInteger = ~static_cast<JsonUInt>(value) + 1;
     }
   }
   // JsonVariant(unsigned short)
