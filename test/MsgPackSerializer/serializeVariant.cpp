@@ -115,7 +115,15 @@ TEST_CASE("serialize MsgPack value") {
   }
 
   SECTION("str 16") {
-    std::string value(256, '?');
-    check(value.c_str(), std::string("\xDA\x01\x00", 3) + value);
+    std::string shortest(256, '?');
+    check(shortest.c_str(), std::string("\xDA\x01\x00", 3) + shortest);
+
+    std::string longest(65535, '?');
+    check(longest.c_str(), std::string("\xDA\xFF\xFF", 3) + longest);
+  }
+
+  SECTION("str 32") {
+    std::string shortest(65536, '?');
+    check(shortest.c_str(), std::string("\xDB\x00\x01\x00\x00", 5) + shortest);
   }
 }
