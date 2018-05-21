@@ -3,6 +3,7 @@
 # MIT License
 
 add_executable(MsgPackSerializerTests
+	serializeArray.cpp
 	serializeVariant.cpp
 )
 
