@@ -35,7 +35,13 @@ class MsgPackVisitor {
   }
 
   void acceptArray(const JsonArray& array) {
-    writeByte(uint8_t(0x90 + array.size()));
+    size_t n = array.size();
+    if (n < 0x10) {
+      writeByte(uint8_t(0x90 + array.size()));
+    } else {
+      writeByte(0xDC);
+      writeInteger(uint16_t(n));
+    }
     for (JsonArray::const_iterator it = array.begin(); it != array.end();
          ++it) {
       it->visit(*this);
@@ -45,22 +51,20 @@ class MsgPackVisitor {
   void acceptObject(const JsonObject& /*object*/) {}
 
   void acceptString(const char* value) {
-    if (!value) {
-      return writeByte(0xC0);
-    }
+    if (!value) return writeByte(0xC0);  // nil
 
     size_t n = strlen(value);
 
     if (n < 0x20) {
       writeByte(uint8_t(0xA0 + n));
     } else if (n < 0x100) {
-      writeByte(uint8_t(0xD9));
+      writeByte(0xD9);
       writeInteger(uint8_t(n));
     } else if (n < 0x10000) {
-      writeByte(uint8_t(0xDA));
+      writeByte(0xDA);
       writeInteger(uint16_t(n));
     } else {
-      writeByte(uint8_t(0xDB));
+      writeByte(0xDB);
       writeInteger(uint32_t(n));
     }
     writeBytes(reinterpret_cast<const uint8_t*>(value), n);

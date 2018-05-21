@@ -30,4 +30,12 @@ TEST_CASE("serialize MsgPack array") {
 
     check(array, "\x92\xA5hello\xA5world");
   }
+
+  SECTION("array 16") {
+    for (int i = 0; i < 16; i++) array.add(i);
+
+    check(array,
+          "\xDC\x00\x10\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D"
+          "\x0E\x0F");
+  }
 }
