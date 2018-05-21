@@ -93,4 +93,10 @@ TEST_CASE("serialize MsgPack value") {
   SECTION("float 64") {
     check(3.1415, "\xCB\x40\x09\x21\xCA\xC0\x83\x12\x6F");
   }
+
+  SECTION("fixstr") {
+    check("", "\xA0");
+    check("hello world hello world hello !",
+          "\xBFhello world hello world hello !");
+  }
 }

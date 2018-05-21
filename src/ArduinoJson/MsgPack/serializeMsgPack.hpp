@@ -38,8 +38,16 @@ class MsgPackVisitor {
 
   void acceptObject(const JsonObject& /*object*/) {}
 
-  void acceptString(const char* /*value*/) {
-    writeByte(0xC0);
+  void acceptString(const char* value) {
+    if (!value) {
+      writeByte(0xC0);
+      return;
+    }
+
+    size_t n = strlen(value);
+
+    writeByte(uint8_t(0xA0 + n));
+    writeBytes(reinterpret_cast<const uint8_t*>(value), n);
   }
 
   void acceptRawJson(const char* /*value*/) {}
@@ -111,7 +119,7 @@ class MsgPackVisitor {
   }
 
   Destination* _output;
-};
+};  // namespace Internals
 }  // namespace Internals
 
 template <typename Destination>
