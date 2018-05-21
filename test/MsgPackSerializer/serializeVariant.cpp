@@ -99,4 +99,9 @@ TEST_CASE("serialize MsgPack value") {
     check("hello world hello world hello !",
           "\xBFhello world hello world hello !");
   }
+
+  SECTION("str 8") {
+    check("hello world hello world hello !!",
+          "\xD9\x20hello world hello world hello !!");
+  }
 }

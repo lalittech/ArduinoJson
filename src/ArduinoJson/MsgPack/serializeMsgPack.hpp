@@ -40,13 +40,17 @@ class MsgPackVisitor {
 
   void acceptString(const char* value) {
     if (!value) {
-      writeByte(0xC0);
-      return;
+      return writeByte(0xC0);
     }
 
     size_t n = strlen(value);
 
-    writeByte(uint8_t(0xA0 + n));
+    if (n < 0x20) {
+      writeByte(uint8_t(0xA0 + n));
+    } else {
+      writeByte(uint8_t(0xD9));
+      writeInteger(uint8_t(n));
+    }
     writeBytes(reinterpret_cast<const uint8_t*>(value), n);
   }
 
