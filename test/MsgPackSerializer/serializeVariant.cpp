@@ -5,15 +5,24 @@
 #include <ArduinoJson.h>
 #include <catch.hpp>
 
-template <size_t N>
-void check(JsonVariant variant, const char (&expected_data)[N]) {
-  const size_t expected_len = N - 1;
+void check(JsonVariant variant, const char* expected_data,
+           size_t expected_len) {
   std::vector<char> expected(expected_data, expected_data + expected_len);
   std::vector<char> actual;
   size_t len = serializeMsgPack(variant, actual);
   CAPTURE(variant);
   REQUIRE(len == expected_len);
   REQUIRE(actual == expected);
+}
+
+template <size_t N>
+void check(JsonVariant variant, const char (&expected_data)[N]) {
+  const size_t expected_len = N - 1;
+  check(variant, expected_data, expected_len);
+}
+
+void check(JsonVariant variant, const std::string& expected) {
+  check(variant, expected.data(), expected.length());
 }
 
 TEST_CASE("serialize MsgPack value") {
@@ -103,5 +112,10 @@ TEST_CASE("serialize MsgPack value") {
   SECTION("str 8") {
     check("hello world hello world hello !!",
           "\xD9\x20hello world hello world hello !!");
+  }
+
+  SECTION("str 16") {
+    std::string value(256, '?');
+    check(value.c_str(), std::string("\xDA\x01\x00", 3) + value);
   }
 }

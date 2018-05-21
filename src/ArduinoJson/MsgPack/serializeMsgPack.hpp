@@ -47,9 +47,12 @@ class MsgPackVisitor {
 
     if (n < 0x20) {
       writeByte(uint8_t(0xA0 + n));
-    } else {
+    } else if (n < 0x100) {
       writeByte(uint8_t(0xD9));
       writeInteger(uint8_t(n));
+    } else {
+      writeByte(uint8_t(0xDA));
+      writeInteger(uint16_t(n));
     }
     writeBytes(reinterpret_cast<const uint8_t*>(value), n);
   }
