@@ -38,9 +38,12 @@ class MsgPackVisitor {
     size_t n = array.size();
     if (n < 0x10) {
       writeByte(uint8_t(0x90 + array.size()));
-    } else {
+    } else if (n < 0x10000) {
       writeByte(0xDC);
       writeInteger(uint16_t(n));
+    } else {
+      writeByte(0xDD);
+      writeInteger(uint32_t(n));
     }
     for (JsonArray::const_iterator it = array.begin(); it != array.end();
          ++it) {
