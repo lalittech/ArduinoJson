@@ -51,8 +51,14 @@ class MsgPackVisitor {
     }
   }
 
-  void acceptObject(const JsonObject& /*object*/) {
-    writeByte(0x80);
+  void acceptObject(const JsonObject& object) {
+    size_t n = object.size();
+    writeByte(uint8_t(0x80 + n));
+    for (JsonObject::const_iterator it = object.begin(); it != object.end();
+         ++it) {
+      acceptString(it->key);
+      it->value.visit(*this);
+    }
   }
 
   void acceptString(const char* value) {

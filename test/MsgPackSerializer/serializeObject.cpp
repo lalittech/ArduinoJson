@@ -32,4 +32,10 @@ TEST_CASE("serialize MsgPack object") {
   SECTION("empty") {
     check(object, "\x80");
   }
+
+  SECTION("map 8") {
+    object["hello"] = "world";
+
+    check(object, "\x81\xA5hello\xA5world");
+  }
 }
