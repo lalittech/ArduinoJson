@@ -3,6 +3,7 @@
 // MIT License
 
 #include <ArduinoJson.h>
+#include <stdio.h>
 #include <catch.hpp>
 
 static void check(const JsonObject& object, const char* expected_data,
@@ -33,9 +34,22 @@ TEST_CASE("serialize MsgPack object") {
     check(object, "\x80");
   }
 
-  SECTION("map 8") {
+  SECTION("fixmap") {
     object["hello"] = "world";
 
     check(object, "\x81\xA5hello\xA5world");
+  }
+
+  SECTION("map 16") {
+    for (int i = 0; i < 16; ++i) {
+      char key[16];
+      sprintf(key, "i%X", i);
+      object[key] = i;
+    }
+
+    check(object,
+          "\xDE\x00\x10\xA2i0\x00\xA2i1\x01\xA2i2\x02\xA2i3\x03\xA2i4\x04\xA2i5"
+          "\x05\xA2i6\x06\xA2i7\x07\xA2i8\x08\xA2i9\x09\xA2iA\x0A\xA2iB\x0B\xA2"
+          "iC\x0C\xA2iD\x0D\xA2iE\x0E\xA2iF\x0F");
   }
 }

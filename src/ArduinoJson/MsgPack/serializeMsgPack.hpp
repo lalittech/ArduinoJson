@@ -53,7 +53,12 @@ class MsgPackVisitor {
 
   void acceptObject(const JsonObject& object) {
     size_t n = object.size();
-    writeByte(uint8_t(0x80 + n));
+    if (n < 0x10) {
+      writeByte(uint8_t(0x80 + n));
+    } else {
+      writeByte(0xDE);
+      writeInteger(uint16_t(n));
+    }
     for (JsonObject::const_iterator it = object.begin(); it != object.end();
          ++it) {
       acceptString(it->key);
