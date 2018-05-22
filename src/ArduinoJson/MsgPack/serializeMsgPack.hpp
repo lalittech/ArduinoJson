@@ -51,7 +51,9 @@ class MsgPackVisitor {
     }
   }
 
-  void acceptObject(const JsonObject& /*object*/) {}
+  void acceptObject(const JsonObject& /*object*/) {
+    writeByte(0x80);
+  }
 
   void acceptString(const char* value) {
     if (!value) return writeByte(0xC0);  // nil

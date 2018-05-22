@@ -4,6 +4,7 @@
 
 add_executable(MsgPackSerializerTests
 	serializeArray.cpp
+	serializeObject.cpp
 	serializeVariant.cpp
 )
 
