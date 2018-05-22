@@ -55,9 +55,12 @@ class MsgPackVisitor {
     size_t n = object.size();
     if (n < 0x10) {
       writeByte(uint8_t(0x80 + n));
-    } else {
+    } else if (n < 0x10000) {
       writeByte(0xDE);
       writeInteger(uint16_t(n));
+    } else {
+      writeByte(0xDF);
+      writeInteger(uint32_t(n));
     }
     for (JsonObject::const_iterator it = object.begin(); it != object.end();
          ++it) {

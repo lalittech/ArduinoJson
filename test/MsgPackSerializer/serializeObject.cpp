@@ -22,9 +22,9 @@ static void check(const JsonObject& object, const char (&expected_data)[N]) {
   check(object, expected_data, expected_len);
 }
 
-/*static void check(const JsonObject& object, const std::string& expected) {
+static void check(const JsonObject& object, const std::string& expected) {
   check(object, expected.data(), expected.length());
-}*/
+}
 
 TEST_CASE("serialize MsgPack object") {
   DynamicJsonDocument doc;
@@ -51,5 +51,21 @@ TEST_CASE("serialize MsgPack object") {
           "\xDE\x00\x10\xA2i0\x00\xA2i1\x01\xA2i2\x02\xA2i3\x03\xA2i4\x04\xA2i5"
           "\x05\xA2i6\x06\xA2i7\x07\xA2i8\x08\xA2i9\x09\xA2iA\x0A\xA2iB\x0B\xA2"
           "iC\x0C\xA2iD\x0D\xA2iE\x0E\xA2iF\x0F");
+  }
+
+  SECTION("map 32") {
+    std::string expected("\xDF\x00\x01\x00\x00", 5);
+
+    for (int i = 0; i < 65536; ++i) {
+      char kv[16];
+      sprintf(kv, "%04x", i);
+      object[kv] = kv;
+      expected += '\xA4';
+      expected += kv;
+      expected += '\xA4';
+      expected += kv;
+    }
+
+    check(object, expected);
   }
 }
