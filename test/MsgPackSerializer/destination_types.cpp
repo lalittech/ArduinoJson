@@ -9,11 +9,26 @@ TEST_CASE("serialize MsgPack to various destination types") {
   DynamicJsonDocument doc;
   JsonObject &object = doc.to<JsonObject>();
   object["hello"] = "world";
+  const char *expected_result = "\x81\xA5hello\xA5world";
 
   SECTION("std::string") {
     std::string result;
     serializeMsgPack(object, result);
 
-    REQUIRE("\x81\xA5hello\xA5world" == result);
+    REQUIRE(expected_result == result);
+  }
+
+  SECTION("std::vector<char>") {
+    std::vector<char> result;
+    serializeMsgPack(object, result);
+
+    REQUIRE(std::vector<char>(expected_result, expected_result + 13) == result);
+  }
+
+  SECTION("char[]") {
+    char result[64];
+    serializeMsgPack(object, result);
+
+    REQUIRE(std::string(expected_result) == result);
   }
 }

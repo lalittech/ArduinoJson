@@ -6,6 +6,8 @@
 
 #include "../JsonVariant.hpp"
 #include "../Polyfills/type_traits.hpp"
+#include "../Print/DynamicStringBuilder.hpp"
+#include "../Print/StaticStringBuilder.hpp"
 #include "./endianess.hpp"
 
 namespace ArduinoJson {
@@ -135,7 +137,7 @@ class MsgPackVisitor {
   }
 
   void acceptBoolean(bool value) {
-    _output->push_back(static_cast<char>(value ? 0xC3 : 0xC2));
+    writeByte(static_cast<char>(value ? 0xC3 : 0xC2));
   }
 
   void acceptUndefined() {
@@ -144,7 +146,7 @@ class MsgPackVisitor {
 
  private:
   void writeByte(uint8_t c) {
-    _output->push_back(char(c));
+    _output->print(char(c));
   }
 
   void writeBytes(const uint8_t* c, size_t n) {
@@ -161,11 +163,37 @@ class MsgPackVisitor {
 };  // namespace Internals
 }  // namespace Internals
 
-template <typename Destination>
-inline size_t serializeMsgPack(const JsonVariant& variant,
-                               Destination& output) {
-  variant.visit(Internals::MsgPackVisitor<Destination>(&output));
+// A Print implementation that allows to write in a String
+template <typename TString>
+class StlPrint {
+ public:
+  StlPrint(TString& str) : _str(str) {}
+
+  size_t print(char c) {
+    _str.push_back(c);
+    return 1;
+  }
+
+ private:
+  StlPrint& operator=(const StlPrint&);
+
+  TString& _str;
+};
+
+template <typename TSource, typename Destination>
+inline size_t serializeMsgPack(const TSource& source, Destination& output) {
+  using namespace Internals;
+  StlPrint<Destination> builder(output);
+  source.visit(MsgPackVisitor<StlPrint<Destination> >(&builder));
   return output.size();
+}
+
+template <typename TSource, size_t N>
+inline size_t serializeMsgPack(const TSource& source, char (&buffer)[N]) {
+  using namespace Internals;
+  Internals::StaticStringBuilder builder(buffer, N);
+  source.visit(MsgPackVisitor<StaticStringBuilder>(&builder));
+  return 0;
 }
 
 }  // namespace ArduinoJson
