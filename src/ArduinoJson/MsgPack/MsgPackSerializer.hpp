@@ -12,10 +12,10 @@
 namespace ArduinoJson {
 namespace Internals {
 
-template <typename Destination>
+template <typename TPrint>
 class MsgPackSerializer {
  public:
-  MsgPackSerializer(Destination& output) : _output(output), _bytesWritten(0) {}
+  MsgPackSerializer(TPrint& output) : _output(output), _bytesWritten(0) {}
 
   template <typename T>
   typename enable_if<sizeof(T) == 4>::type acceptFloat(T value32) {
@@ -163,15 +163,22 @@ class MsgPackSerializer {
     writeBytes(reinterpret_cast<uint8_t*>(&value), sizeof(value));
   }
 
-  Destination& _output;
+  TPrint& _output;
   size_t _bytesWritten;
 };
 }  // namespace Internals
 
-template <typename TSource, typename Destination>
-inline size_t serializeMsgPack(const TSource& source, Destination& output) {
+template <typename TSource, typename TDestination>
+inline size_t serializeMsgPack(const TSource& source, TDestination& output) {
   using namespace Internals;
   return serialize<MsgPackSerializer>(source, output);
+}
+
+template <typename TSource, typename TDestination>
+inline size_t serializeMsgPack(const TSource& source, TDestination* output,
+                               size_t size) {
+  using namespace Internals;
+  return serialize<MsgPackSerializer>(source, output, size);
 }
 
 }  // namespace ArduinoJson

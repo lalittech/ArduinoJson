@@ -32,4 +32,11 @@ TEST_CASE("serialize MsgPack to various destination types") {
 
     REQUIRE(std::string(expected_result) == result);
   }
+
+  SECTION("char*") {
+    char result[64];
+    serializeMsgPack(object, result, 64);
+
+    REQUIRE(std::string(expected_result) == result);
+  }
 }
