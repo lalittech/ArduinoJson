@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../SerializeFunctor.hpp"
+#include "../Serialization/serialize.hpp"
 #include "./IndentedPrint.hpp"
 #include "./JsonWriter.hpp"
 #include "./Prettyfier.hpp"
@@ -89,14 +89,14 @@ class JsonSerializer {
 
 template <typename TSource, typename TDestination>
 size_t serializeJson(TSource &source, TDestination &destination) {
-  Internals::SerializeFunctor<Internals::JsonSerializer> serialize;
-  return serialize(source, destination);
+  using namespace Internals;
+  return serialize<JsonSerializer>(source, destination);
 }
 
 template <typename TSource>
 size_t serializeJson(const TSource &source, char *buffer, size_t bufferSize) {
-  Internals::SerializeFunctor<Internals::JsonSerializer> serialize;
-  return serialize(source, buffer, bufferSize);
+  using namespace Internals;
+  return serialize<JsonSerializer>(source, buffer, bufferSize);
 }
 
 template <typename TSource, typename TDestination>
