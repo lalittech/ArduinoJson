@@ -18,80 +18,78 @@
 namespace ArduinoJson {
 namespace Internals {
 
-template <typename Writer>
+template <typename TPrint>
 class JsonSerializer {
  public:
-  template <typename TSource>
-  static void serialize(const TSource &source, Writer &writer) {
-    source.visit(Visitor(&writer));
+  JsonSerializer(TPrint &destination) : _writer(destination) {}
+
+  void acceptFloat(JsonFloat value) {
+    _writer.writeFloat(value);
   }
 
-  struct Visitor {
-    Visitor(Writer *writer) : _writer(writer) {}
+  void acceptArray(const JsonArray &array) {
+    _writer.beginArray();
 
-    void acceptFloat(JsonFloat value) {
-      _writer->writeFloat(value);
+    JsonArray::const_iterator it = array.begin();
+    while (it != array.end()) {
+      it->visit(*this);
+
+      ++it;
+      if (it == array.end()) break;
+
+      _writer.writeComma();
     }
 
-    void acceptArray(const JsonArray &array) {
-      _writer->beginArray();
+    _writer.endArray();
+  }
 
-      JsonArray::const_iterator it = array.begin();
-      while (it != array.end()) {
-        it->visit(*this);
+  void acceptObject(const JsonObject &object) {
+    _writer.beginObject();
 
-        ++it;
-        if (it == array.end()) break;
+    JsonObject::const_iterator it = object.begin();
+    while (it != object.end()) {
+      _writer.writeString(it->key);
+      _writer.writeColon();
+      it->value.visit(*this);
 
-        _writer->writeComma();
-      }
+      ++it;
+      if (it == object.end()) break;
 
-      _writer->endArray();
+      _writer.writeComma();
     }
 
-    void acceptObject(const JsonObject &object) {
-      _writer->beginObject();
+    _writer.endObject();
+  }
 
-      JsonObject::const_iterator it = object.begin();
-      while (it != object.end()) {
-        _writer->writeString(it->key);
-        _writer->writeColon();
-        it->value.visit(*this);
+  void acceptString(const char *value) {
+    _writer.writeString(value);
+  }
 
-        ++it;
-        if (it == object.end()) break;
+  void acceptRawJson(const char *value) {
+    _writer.writeRaw(value);
+  }
 
-        _writer->writeComma();
-      }
+  void acceptNegativeInteger(JsonUInt value) {
+    _writer.writeRaw('-');
+    _writer.writeInteger(value);
+  }
 
-      _writer->endObject();
-    }
+  void acceptPositiveInteger(JsonUInt value) {
+    _writer.writeInteger(value);
+  }
 
-    void acceptString(const char *value) {
-      _writer->writeString(value);
-    }
+  void acceptBoolean(bool value) {
+    _writer.writeBoolean(value);
+  }
 
-    void acceptRawJson(const char *value) {
-      _writer->writeRaw(value);
-    }
+  void acceptUndefined() {}
 
-    void acceptNegativeInteger(JsonUInt value) {
-      _writer->writeRaw('-');
-      _writer->writeInteger(value);
-    }
+  size_t bytesWritten() const {
+    return _writer.bytesWritten();
+  }
 
-    void acceptPositiveInteger(JsonUInt value) {
-      _writer->writeInteger(value);
-    }
-
-    void acceptBoolean(bool value) {
-      _writer->writeBoolean(value);
-    }
-
-    void acceptUndefined() {}
-
-    Writer *_writer;
-  };
+ private:
+  JsonWriter<TPrint> _writer;
 };
 }  // namespace Internals
 
@@ -99,10 +97,9 @@ template <typename TSource, typename TDestination>
 typename Internals::enable_if<
     !Internals::StringTraits<TDestination>::has_append, size_t>::type
 serializeJson(const TSource &source, TDestination &destination) {
-  Internals::JsonWriter<TDestination> writer(destination);
-  Internals::JsonSerializer<Internals::JsonWriter<TDestination> >::serialize(
-      source, writer);
-  return writer.bytesWritten();
+  Internals::JsonSerializer<TDestination> serializer(destination);
+  source.visit(serializer);
+  return serializer.bytesWritten();
 }
 
 #if ARDUINOJSON_ENABLE_STD_STREAM

@@ -308,7 +308,7 @@ class JsonVariant : public Internals::JsonVariantBase<JsonVariant> {
   }
 
   template <typename Visitor>
-  void visit(Visitor visitor) const {
+  void visit(Visitor &visitor) const {
     using namespace Internals;
     switch (_type) {
       case JSON_FLOAT:

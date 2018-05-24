@@ -14,9 +14,9 @@ namespace ArduinoJson {
 namespace Internals {
 
 template <typename Destination>
-class MsgPackVisitor {
+class MsgPackSerializerVisitor {
  public:
-  MsgPackVisitor(Destination* output) : _output(output) {}
+  MsgPackSerializerVisitor(Destination* output) : _output(output) {}
 
   template <typename T>
   typename enable_if<sizeof(T) == 4>::type acceptFloat(T value32) {
@@ -137,7 +137,7 @@ class MsgPackVisitor {
   }
 
   void acceptBoolean(bool value) {
-    writeByte(static_cast<char>(value ? 0xC3 : 0xC2));
+    writeByte(value ? 0xC3 : 0xC2);
   }
 
   void acceptUndefined() {
@@ -184,7 +184,8 @@ template <typename TSource, typename Destination>
 inline size_t serializeMsgPack(const TSource& source, Destination& output) {
   using namespace Internals;
   StlPrint<Destination> builder(output);
-  source.visit(MsgPackVisitor<StlPrint<Destination> >(&builder));
+  MsgPackSerializerVisitor<StlPrint<Destination> > serializer(&builder);
+  source.visit(serializer);
   return output.size();
 }
 
@@ -192,7 +193,8 @@ template <typename TSource, size_t N>
 inline size_t serializeMsgPack(const TSource& source, char (&buffer)[N]) {
   using namespace Internals;
   Internals::StaticStringBuilder builder(buffer, N);
-  source.visit(MsgPackVisitor<StaticStringBuilder>(&builder));
+  MsgPackSerializerVisitor<StaticStringBuilder> serializer(&builder);
+  source.visit(serializer);
   return 0;
 }
 

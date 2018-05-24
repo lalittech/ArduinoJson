@@ -5,7 +5,7 @@
 #pragma once
 
 #include "ArduinoJson/DynamicJsonDocument.hpp"
-#include "ArduinoJson/MsgPack/serializeMsgPack.hpp"
+#include "ArduinoJson/MsgPack/MsgPackSerializer.hpp"
 #include "ArduinoJson/StaticJsonDocument.hpp"
 #include "ArduinoJson/deserializeJson.hpp"
 #include "ArduinoJson/deserializeMsgPack.hpp"
