@@ -85,6 +85,20 @@ class JsonSerializer {
  private:
   JsonWriter<TPrint> _writer;
 };
+
+template <typename TPrint>
+class PrettyJsonSerializer : public IndentedPrint<TPrint>,
+                             public Prettyfier<TPrint>,
+                             public JsonSerializer<Prettyfier<TPrint> > {
+ public:
+  PrettyJsonSerializer(TPrint &output)
+      : IndentedPrint<TPrint>(output),
+        Prettyfier<TPrint>(static_cast<IndentedPrint<TPrint> &>(*this)),
+        JsonSerializer<Prettyfier<TPrint> >(
+            static_cast<Prettyfier<TPrint> &>(*this)) {}
+
+ private:
+};
 }  // namespace Internals
 
 template <typename TSource, typename TDestination>
@@ -100,37 +114,15 @@ size_t serializeJson(const TSource &source, char *buffer, size_t bufferSize) {
 }
 
 template <typename TSource, typename TDestination>
-size_t serializeJsonPretty(const TSource &source,
-                           Internals::IndentedPrint<TDestination> &print) {
-  Internals::Prettyfier<TDestination> p(print);
-  return serializeJson(source, p);
+size_t serializeJsonPretty(TSource &source, TDestination &destination) {
+  using namespace Internals;
+  return serialize<PrettyJsonSerializer>(source, destination);
 }
 
 template <typename TSource>
 size_t serializeJsonPretty(const TSource &source, char *buffer,
                            size_t bufferSize) {
   Internals::StaticStringBuilder sb(buffer, bufferSize);
-  return serializeJsonPretty(source, sb);
-}
-
-template <typename TSource, size_t N>
-size_t serializeJsonPretty(const TSource &source, char (&buffer)[N]) {
-  return serializeJsonPretty(source, buffer, N);
-}
-
-template <typename TSource, typename TDestination>
-typename Internals::enable_if<
-    !Internals::StringTraits<TDestination>::has_append, size_t>::type
-serializeJsonPretty(const TSource &source, TDestination &print) {
-  Internals::IndentedPrint<TDestination> indentedPrint(print);
-  return serializeJsonPretty(source, indentedPrint);
-}
-
-template <typename TSource, typename TDestination>
-typename Internals::enable_if<Internals::StringTraits<TDestination>::has_append,
-                              size_t>::type
-serializeJsonPretty(const TSource &source, TDestination &str) {
-  Internals::DynamicStringBuilder<TDestination> sb(str);
   return serializeJsonPretty(source, sb);
 }
 
