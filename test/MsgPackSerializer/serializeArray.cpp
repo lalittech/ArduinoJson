@@ -7,8 +7,8 @@
 
 static void check(const JsonArray& array, const char* expected_data,
                   size_t expected_len) {
-  std::vector<char> expected(expected_data, expected_data + expected_len);
-  std::vector<char> actual;
+  std::string expected(expected_data, expected_data + expected_len);
+  std::string actual;
   size_t len = serializeMsgPack(array, actual);
   CAPTURE(array);
   REQUIRE(len == expected_len);

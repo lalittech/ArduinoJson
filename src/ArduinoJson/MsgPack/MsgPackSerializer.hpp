@@ -6,17 +6,16 @@
 
 #include "../JsonVariant.hpp"
 #include "../Polyfills/type_traits.hpp"
-#include "../Print/DynamicStringBuilder.hpp"
-#include "../Print/StaticStringBuilder.hpp"
+#include "../Serialization/serialize.hpp"
 #include "./endianess.hpp"
 
 namespace ArduinoJson {
 namespace Internals {
 
 template <typename Destination>
-class MsgPackSerializerVisitor {
+class MsgPackSerializer {
  public:
-  MsgPackSerializerVisitor(Destination* output) : _output(output) {}
+  MsgPackSerializer(Destination& output) : _output(output), _bytesWritten(0) {}
 
   template <typename T>
   typename enable_if<sizeof(T) == 4>::type acceptFloat(T value32) {
@@ -144,9 +143,14 @@ class MsgPackSerializerVisitor {
     writeByte(0xC0);
   }
 
+  size_t bytesWritten() const {
+    return _bytesWritten;
+  }
+
  private:
   void writeByte(uint8_t c) {
-    _output->print(char(c));
+    _output.print(char(c));
+    _bytesWritten++;
   }
 
   void writeBytes(const uint8_t* c, size_t n) {
@@ -159,43 +163,15 @@ class MsgPackSerializerVisitor {
     writeBytes(reinterpret_cast<uint8_t*>(&value), sizeof(value));
   }
 
-  Destination* _output;
-};  // namespace Internals
-}  // namespace Internals
-
-// A Print implementation that allows to write in a String
-template <typename TString>
-class StlPrint {
- public:
-  StlPrint(TString& str) : _str(str) {}
-
-  size_t print(char c) {
-    _str.push_back(c);
-    return 1;
-  }
-
- private:
-  StlPrint& operator=(const StlPrint&);
-
-  TString& _str;
+  Destination& _output;
+  size_t _bytesWritten;
 };
+}  // namespace Internals
 
 template <typename TSource, typename Destination>
 inline size_t serializeMsgPack(const TSource& source, Destination& output) {
   using namespace Internals;
-  StlPrint<Destination> builder(output);
-  MsgPackSerializerVisitor<StlPrint<Destination> > serializer(&builder);
-  source.visit(serializer);
-  return output.size();
-}
-
-template <typename TSource, size_t N>
-inline size_t serializeMsgPack(const TSource& source, char (&buffer)[N]) {
-  using namespace Internals;
-  Internals::StaticStringBuilder builder(buffer, N);
-  MsgPackSerializerVisitor<StaticStringBuilder> serializer(&builder);
-  source.visit(serializer);
-  return 0;
+  return serialize<MsgPackSerializer>(source, output);
 }
 
 }  // namespace ArduinoJson

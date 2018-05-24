@@ -18,12 +18,13 @@ TEST_CASE("serialize MsgPack to various destination types") {
     REQUIRE(expected_result == result);
   }
 
-  SECTION("std::vector<char>") {
-    std::vector<char> result;
-    serializeMsgPack(object, result);
+  /*  SECTION("std::vector<char>") {
+      std::vector<char> result;
+      serializeMsgPack(object, result);
 
-    REQUIRE(std::vector<char>(expected_result, expected_result + 13) == result);
-  }
+      REQUIRE(std::vector<char>(expected_result, expected_result + 13) ==
+    result);
+    } */
 
   SECTION("char[]") {
     char result[64];
