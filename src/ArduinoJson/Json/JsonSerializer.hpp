@@ -4,16 +4,10 @@
 
 #pragma once
 
-#include "../Print/DummyPrint.hpp"
-#include "../Print/DynamicStringBuilder.hpp"
-#include "../Print/StaticStringBuilder.hpp"
+#include "../SerializeFunctor.hpp"
 #include "./IndentedPrint.hpp"
 #include "./JsonWriter.hpp"
 #include "./Prettyfier.hpp"
-
-#if ARDUINOJSON_ENABLE_STD_STREAM
-#include "../Print/StreamPrintAdapter.hpp"
-#endif
 
 namespace ArduinoJson {
 namespace Internals {
@@ -94,40 +88,15 @@ class JsonSerializer {
 }  // namespace Internals
 
 template <typename TSource, typename TDestination>
-typename Internals::enable_if<
-    !Internals::StringTraits<TDestination>::has_append, size_t>::type
-serializeJson(const TSource &source, TDestination &destination) {
-  Internals::JsonSerializer<TDestination> serializer(destination);
-  source.visit(serializer);
-  return serializer.bytesWritten();
+size_t serializeJson(TSource &source, TDestination &destination) {
+  Internals::SerializeFunctor<Internals::JsonSerializer> serialize;
+  return serialize(source, destination);
 }
-
-#if ARDUINOJSON_ENABLE_STD_STREAM
-template <typename TSource>
-std::ostream &serializeJson(const TSource &source, std::ostream &os) {
-  Internals::StreamPrintAdapter adapter(os);
-  serializeJson(source, adapter);
-  return os;
-}
-#endif
 
 template <typename TSource>
 size_t serializeJson(const TSource &source, char *buffer, size_t bufferSize) {
-  Internals::StaticStringBuilder sb(buffer, bufferSize);
-  return serializeJson(source, sb);
-}
-
-template <typename TSource, size_t N>
-size_t serializeJson(const TSource &source, char (&buffer)[N]) {
-  return serializeJson(source, buffer, N);
-}
-
-template <typename TSource, typename TDestination>
-typename Internals::enable_if<Internals::StringTraits<TDestination>::has_append,
-                              size_t>::type
-serializeJson(const TSource &source, TDestination &str) {
-  Internals::DynamicStringBuilder<TDestination> sb(str);
-  return serializeJson(source, sb);
+  Internals::SerializeFunctor<Internals::JsonSerializer> serialize;
+  return serialize(source, buffer, bufferSize);
 }
 
 template <typename TSource, typename TDestination>
