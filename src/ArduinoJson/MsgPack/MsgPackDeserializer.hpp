@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "../Deserialization/deserialize.hpp"
 #include "../DeserializationError.hpp"
 #include "../JsonVariant.hpp"
 #include "../Memory/JsonBuffer.hpp"
@@ -299,4 +300,29 @@ class MsgPackDeserializer {
   uint8_t _nestingLimit;
 };
 }  // namespace Internals
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeMsgPack(TDocument &doc, const TInput &input) {
+  using namespace Internals;
+  return deserialize<MsgPackDeserializer>(doc, input);
+}
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeMsgPack(TDocument &doc, TInput *input) {
+  using namespace Internals;
+  return deserialize<MsgPackDeserializer>(doc, input);
+}
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeMsgPack(TDocument &doc, TInput *input,
+                                        size_t inputSize) {
+  using namespace Internals;
+  return deserialize<MsgPackDeserializer>(doc, input, inputSize);
+}
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeMsgPack(TDocument &doc, TInput &input) {
+  using namespace Internals;
+  return deserialize<MsgPackDeserializer>(doc, input);
+}
 }  // namespace ArduinoJson
