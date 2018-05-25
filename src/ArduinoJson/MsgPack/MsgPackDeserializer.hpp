@@ -298,12 +298,5 @@ class MsgPackDeserializer {
   TWriter _writer;
   uint8_t _nestingLimit;
 };
-
-template <typename TJsonBuffer, typename TReader, typename TWriter>
-MsgPackDeserializer<TReader, TWriter> makeMsgPackDeserializer(
-    TJsonBuffer *buffer, TReader reader, TWriter writer, uint8_t nestingLimit) {
-  return MsgPackDeserializer<TReader, TWriter>(buffer, reader, writer,
-                                               nestingLimit);
-}
 }  // namespace Internals
 }  // namespace ArduinoJson
