@@ -8,14 +8,20 @@
 #include "MsgPack/MsgPackDeserializer.hpp"
 
 namespace ArduinoJson {
-template <typename TDocument, typename TString>
-DeserializationError deserializeMsgPack(TDocument &doc, const TString &input) {
+template <typename TDocument, typename TInput>
+DeserializationError deserializeMsgPack(TDocument &doc, const TInput &input) {
   using namespace Internals;
   return deserialize<MsgPackDeserializer>(doc, input);
 }
 
-template <typename TDocument, typename TChar>
-DeserializationError deserializeMsgPack(TDocument &doc, TChar *input,
+template <typename TDocument, typename TInput>
+DeserializationError deserializeMsgPack(TDocument &doc, TInput *input) {
+  using namespace Internals;
+  return deserialize<MsgPackDeserializer>(doc, input);
+}
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeMsgPack(TDocument &doc, TInput *input,
                                         size_t inputSize) {
   using namespace Internals;
   return deserialize<MsgPackDeserializer>(doc, input, inputSize);

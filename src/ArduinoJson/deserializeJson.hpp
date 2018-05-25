@@ -4,55 +4,32 @@
 
 #pragma once
 
+#include "Deserialization/deserialize.hpp"
 #include "Json/JsonDeserializer.hpp"
-#include "Reading/Reader.hpp"
-#include "Writing/Writer.hpp"
 
 namespace ArduinoJson {
-// DeserializationError deserializeJson(TDocument& doc, TString input);
-// TDocument = DynamicJsonDocument, StaticJsonDocument
-// TString = const std::string&, const String&
-template <typename TDocument, typename TString>
-typename Internals::enable_if<!Internals::is_array<TString>::value,
-                              DeserializationError>::type
-deserializeJson(TDocument &doc, const TString &input) {
+template <typename TDocument, typename TInput>
+DeserializationError deserializeJson(TDocument &doc, const TInput &input) {
   using namespace Internals;
-  return makeJsonDeserializer(&doc.buffer(), makeReader(input),
-                              makeWriter(doc.buffer(), input), doc.nestingLimit)
-      .parse(doc.template to<JsonVariant>());
+  return deserialize<JsonDeserializer>(doc, input);
 }
-//
-// DeserializationError deserializeJson(TDocument& doc, TChar* input);
-// TDocument = DynamicJsonDocument, StaticJsonDocument
-// TChar* = char*, const char*, const FlashStringHelper*
-template <typename TDocument, typename TChar>
-DeserializationError deserializeJson(TDocument &doc, TChar *input) {
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeJson(TDocument &doc, TInput *input) {
   using namespace Internals;
-  return makeJsonDeserializer(&doc.buffer(), makeReader(input),
-                              makeWriter(doc.buffer(), input), doc.nestingLimit)
-      .parse(doc.template to<JsonVariant>());
+  return deserialize<JsonDeserializer>(doc, input);
 }
-//
-// DeserializationError deserializeJson(TDocument& doc, TChar* input, size_t
-// inputSize); TDocument = DynamicJsonDocument, StaticJsonDocument TChar* =
-// char*, const char*, const FlashStringHelper*
-template <typename TDocument, typename TChar>
-DeserializationError deserializeJson(TDocument &doc, TChar *input,
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeJson(TDocument &doc, TInput *input,
                                      size_t inputSize) {
   using namespace Internals;
-  return makeJsonDeserializer(&doc.buffer(), makeReader(input, inputSize),
-                              makeWriter(doc.buffer(), input), doc.nestingLimit)
-      .parse(doc.template to<JsonVariant>());
+  return deserialize<JsonDeserializer>(doc, input, inputSize);
 }
-//
-// DeserializationError deserializeJson(TDocument& doc, TStream input);
-// TDocument = DynamicJsonDocument, StaticJsonDocument
-// TStream = std::istream&, Stream&
-template <typename TDocument, typename TStream>
-DeserializationError deserializeJson(TDocument &doc, TStream &input) {
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeJson(TDocument &doc, TInput &input) {
   using namespace Internals;
-  return makeJsonDeserializer(&doc.buffer(), makeReader(input),
-                              makeWriter(doc.buffer(), input), doc.nestingLimit)
-      .parse(doc.template to<JsonVariant>());
+  return deserialize<JsonDeserializer>(doc, input);
 }
 }  // namespace ArduinoJson
