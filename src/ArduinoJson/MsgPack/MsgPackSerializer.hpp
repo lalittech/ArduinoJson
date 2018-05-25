@@ -6,6 +6,7 @@
 
 #include "../JsonVariant.hpp"
 #include "../Polyfills/type_traits.hpp"
+#include "../Serialization/measure.hpp"
 #include "../Serialization/serialize.hpp"
 #include "./endianess.hpp"
 
@@ -179,6 +180,12 @@ inline size_t serializeMsgPack(const TSource& source, TDestination* output,
                                size_t size) {
   using namespace Internals;
   return serialize<MsgPackSerializer>(source, output, size);
+}
+
+template <typename TSource>
+inline size_t measureMsgPack(const TSource& source) {
+  using namespace Internals;
+  return measure<MsgPackSerializer>(source);
 }
 
 }  // namespace ArduinoJson
