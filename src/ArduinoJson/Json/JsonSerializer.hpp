@@ -122,20 +122,20 @@ size_t serializeJsonPretty(TSource &source, TDestination &destination) {
 template <typename TSource>
 size_t serializeJsonPretty(const TSource &source, char *buffer,
                            size_t bufferSize) {
-  Internals::StaticStringBuilder sb(buffer, bufferSize);
-  return serializeJsonPretty(source, sb);
+  using namespace Internals;
+  return serialize<PrettyJsonSerializer>(source, buffer, bufferSize);
 }
 
 template <typename TSource>
 size_t measureJson(const TSource &source) {
-  Internals::DummyPrint dp;
-  return serializeJson(source, dp);
+  using namespace Internals;
+  return measure<JsonSerializer>(source);
 }
 
 template <typename TSource>
 size_t measureJsonPretty(const TSource &source) {
-  Internals::DummyPrint dp;
-  return serializeJsonPretty(source, dp);
+  using namespace Internals;
+  return measure<PrettyJsonSerializer>(source);
 }
 
 #if ARDUINOJSON_ENABLE_STD_STREAM
