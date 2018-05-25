@@ -4,10 +4,9 @@
 
 #pragma once
 
+#include "../Serialization/measure.hpp"
 #include "../Serialization/serialize.hpp"
-#include "./IndentedPrint.hpp"
 #include "./JsonWriter.hpp"
-#include "./Prettyfier.hpp"
 
 namespace ArduinoJson {
 namespace Internals {
@@ -86,19 +85,6 @@ class JsonSerializer {
   JsonWriter<TPrint> _writer;
 };
 
-template <typename TPrint>
-class PrettyJsonSerializer : public IndentedPrint<TPrint>,
-                             public Prettyfier<TPrint>,
-                             public JsonSerializer<Prettyfier<TPrint> > {
- public:
-  PrettyJsonSerializer(TPrint &output)
-      : IndentedPrint<TPrint>(output),
-        Prettyfier<TPrint>(static_cast<IndentedPrint<TPrint> &>(*this)),
-        JsonSerializer<Prettyfier<TPrint> >(
-            static_cast<Prettyfier<TPrint> &>(*this)) {}
-
- private:
-};
 }  // namespace Internals
 
 template <typename TSource, typename TDestination>
@@ -113,29 +99,10 @@ size_t serializeJson(const TSource &source, char *buffer, size_t bufferSize) {
   return serialize<JsonSerializer>(source, buffer, bufferSize);
 }
 
-template <typename TSource, typename TDestination>
-size_t serializeJsonPretty(TSource &source, TDestination &destination) {
-  using namespace Internals;
-  return serialize<PrettyJsonSerializer>(source, destination);
-}
-
-template <typename TSource>
-size_t serializeJsonPretty(const TSource &source, char *buffer,
-                           size_t bufferSize) {
-  using namespace Internals;
-  return serialize<PrettyJsonSerializer>(source, buffer, bufferSize);
-}
-
 template <typename TSource>
 size_t measureJson(const TSource &source) {
   using namespace Internals;
   return measure<JsonSerializer>(source);
-}
-
-template <typename TSource>
-size_t measureJsonPretty(const TSource &source) {
-  using namespace Internals;
-  return measure<PrettyJsonSerializer>(source);
 }
 
 #if ARDUINOJSON_ENABLE_STD_STREAM
