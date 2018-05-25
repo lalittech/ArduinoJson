@@ -15,7 +15,7 @@ namespace Internals {
 template <typename TPrint>
 class MsgPackSerializer {
  public:
-  MsgPackSerializer(TPrint& output) : _output(output), _bytesWritten(0) {}
+  MsgPackSerializer(TPrint& output) : _output(&output), _bytesWritten(0) {}
 
   template <typename T>
   typename enable_if<sizeof(T) == 4>::type acceptFloat(T value32) {
@@ -149,7 +149,7 @@ class MsgPackSerializer {
 
  private:
   void writeByte(uint8_t c) {
-    _output.print(char(c));
+    _output->print(char(c));
     _bytesWritten++;
   }
 
@@ -163,7 +163,7 @@ class MsgPackSerializer {
     writeBytes(reinterpret_cast<uint8_t*>(&value), sizeof(value));
   }
 
-  TPrint& _output;
+  TPrint* _output;
   size_t _bytesWritten;
 };
 }  // namespace Internals
