@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "../Deserialization/deserialize.hpp"
 #include "../DeserializationError.hpp"
 #include "../JsonVariant.hpp"
 #include "../Memory/JsonBuffer.hpp"
@@ -290,14 +291,30 @@ class JsonDeserializer {
   char _current;
   bool _loaded;
 };
-
-template <typename TJsonBuffer, typename TReader, typename TWriter>
-JsonDeserializer<TReader, TWriter> makeJsonDeserializer(TJsonBuffer *buffer,
-                                                        TReader reader,
-                                                        TWriter writer,
-                                                        uint8_t nestingLimit) {
-  return JsonDeserializer<TReader, TWriter>(buffer, reader, writer,
-                                            nestingLimit);
-}
 }  // namespace Internals
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeJson(TDocument &doc, const TInput &input) {
+  using namespace Internals;
+  return deserialize<JsonDeserializer>(doc, input);
+}
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeJson(TDocument &doc, TInput *input) {
+  using namespace Internals;
+  return deserialize<JsonDeserializer>(doc, input);
+}
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeJson(TDocument &doc, TInput *input,
+                                     size_t inputSize) {
+  using namespace Internals;
+  return deserialize<JsonDeserializer>(doc, input, inputSize);
+}
+
+template <typename TDocument, typename TInput>
+DeserializationError deserializeJson(TDocument &doc, TInput &input) {
+  using namespace Internals;
+  return deserialize<JsonDeserializer>(doc, input);
+}
 }  // namespace ArduinoJson
