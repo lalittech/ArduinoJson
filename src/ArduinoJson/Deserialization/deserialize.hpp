@@ -5,7 +5,7 @@
 #pragma once
 
 #include "../Reading/Reader.hpp"
-#include "../Writing/Writer.hpp"
+#include "../StringStorage/StringStorage.hpp"
 #include "./DeserializationError.hpp"
 
 namespace ArduinoJson {
@@ -29,7 +29,7 @@ typename Internals::enable_if<!Internals::is_array<TString>::value,
 deserialize(TDocument &doc, const TString &input) {
   using namespace Internals;
   return makeDeserializer<TDeserializer>(&doc.buffer(), makeReader(input),
-                                         makeWriter(doc.buffer(), input),
+                                         makeStringStorage(doc.buffer(), input),
                                          doc.nestingLimit)
       .parse(doc.template to<JsonVariant>());
 }
@@ -42,7 +42,7 @@ template <template <typename, typename> class TDeserializer, typename TDocument,
 DeserializationError deserialize(TDocument &doc, TChar *input) {
   using namespace Internals;
   return makeDeserializer<TDeserializer>(&doc.buffer(), makeReader(input),
-                                         makeWriter(doc.buffer(), input),
+                                         makeStringStorage(doc.buffer(), input),
                                          doc.nestingLimit)
       .parse(doc.template to<JsonVariant>());
 }
@@ -58,7 +58,7 @@ DeserializationError deserialize(TDocument &doc, TChar *input,
   using namespace Internals;
   return makeDeserializer<TDeserializer>(
              &doc.buffer(), makeReader(input, inputSize),
-             makeWriter(doc.buffer(), input), doc.nestingLimit)
+             makeStringStorage(doc.buffer(), input), doc.nestingLimit)
       .parse(doc.template to<JsonVariant>());
 }
 //
@@ -70,7 +70,7 @@ template <template <typename, typename> class TDeserializer, typename TDocument,
 DeserializationError deserialize(TDocument &doc, TStream &input) {
   using namespace Internals;
   return makeDeserializer<TDeserializer>(&doc.buffer(), makeReader(input),
-                                         makeWriter(doc.buffer(), input),
+                                         makeStringStorage(doc.buffer(), input),
                                          doc.nestingLimit)
       .parse(doc.template to<JsonVariant>());
 }

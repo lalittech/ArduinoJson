@@ -14,14 +14,14 @@
 namespace ArduinoJson {
 namespace Internals {
 
-template <typename TReader, typename TWriter>
+template <typename TReader, typename TStringStorage>
 class MsgPackDeserializer {
  public:
-  MsgPackDeserializer(JsonBuffer *buffer, TReader reader, TWriter writer,
-                      uint8_t nestingLimit)
+  MsgPackDeserializer(JsonBuffer *buffer, TReader reader,
+                      TStringStorage stringStorage, uint8_t nestingLimit)
       : _buffer(buffer),
         _reader(reader),
-        _writer(writer),
+        _stringStorage(stringStorage),
         _nestingLimit(nestingLimit) {}
 
   DeserializationError parse(JsonVariant &variant) {
@@ -219,8 +219,8 @@ class MsgPackDeserializer {
   }
 
   DeserializationError readString(JsonVariant &variant, size_t n) {
-    typename remove_reference<TWriter>::type::String str =
-        _writer.startString();
+    typename remove_reference<TStringStorage>::type::String str =
+        _stringStorage.startString();
     for (; n; --n) {
       uint8_t c;
       if (!readBytes(c)) return DeserializationError::IncompleteInput;
@@ -293,7 +293,7 @@ class MsgPackDeserializer {
 
   JsonBuffer *_buffer;
   TReader _reader;
-  TWriter _writer;
+  TStringStorage _stringStorage;
   uint8_t _nestingLimit;
 };
 }  // namespace Internals
