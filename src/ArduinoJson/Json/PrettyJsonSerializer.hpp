@@ -14,17 +14,24 @@ namespace ArduinoJson {
 namespace Internals {
 
 template <typename TPrint>
-class PrettyJsonSerializer : public IndentedPrint<TPrint>,
-                             public Prettyfier<TPrint>,
+class PrettyJsonSerializer_Base {
+ public:
+  PrettyJsonSerializer_Base(TPrint &output)
+      : _indentedPrint(output), _prettyfier(_indentedPrint) {}
+
+ protected:
+  IndentedPrint<TPrint> _indentedPrint;
+  Prettyfier<TPrint> _prettyfier;
+};
+
+template <typename TPrint>
+class PrettyJsonSerializer : PrettyJsonSerializer_Base<TPrint>,
                              public JsonSerializer<Prettyfier<TPrint> > {
  public:
   PrettyJsonSerializer(TPrint &output)
-      : IndentedPrint<TPrint>(output),
-        Prettyfier<TPrint>(static_cast<IndentedPrint<TPrint> &>(*this)),
+      : PrettyJsonSerializer_Base<TPrint>(output),
         JsonSerializer<Prettyfier<TPrint> >(
-            static_cast<Prettyfier<TPrint> &>(*this)) {}
-
- private:
+            PrettyJsonSerializer_Base<TPrint>::_prettyfier) {}
 };
 }  // namespace Internals
 
