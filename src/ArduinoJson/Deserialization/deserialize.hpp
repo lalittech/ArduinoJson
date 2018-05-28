@@ -4,9 +4,13 @@
 
 #pragma once
 
-#include "../Reading/Reader.hpp"
 #include "../StringStorage/StringStorage.hpp"
+#include "./ArduinoStreamReader.hpp"
+#include "./CharPointerReader.hpp"
 #include "./DeserializationError.hpp"
+#include "./FlashStringReader.hpp"
+#include "./IteratorReader.hpp"
+#include "./StdStreamReader.hpp"
 
 namespace ArduinoJson {
 namespace Internals {
